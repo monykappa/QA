@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from database import SessionLocal
 from models import QAItemDB
-from schemas import QASubmit, QAUpdate, QAItem
+from schemas import QASubmit, QAUpdate, QAItem  # Make sure QASubmit is imported
 from utils import format_timestamp
 
 router = APIRouter()
@@ -19,17 +19,22 @@ def get_db():
 
 @router.post("/submit_qa/", summary="Submit a new question and answer", tags=["Q&A"])
 async def submit_qa(qa: QASubmit, db: Session = Depends(get_db)):
+    current_time = datetime.now()
     qa_item = QAItemDB(
         question=qa.question,
         answer=qa.answer,
         category=qa.category,
-        timestamp=datetime.now(),
+        created_at=current_time,  # Explicitly set the current time
         updated_timestamp=None
     )
     db.add(qa_item)
     db.commit()
     db.refresh(qa_item)
-    return {"message": "Question and answer saved successfully!", "id": qa_item.id}
+    return {
+        "message": "Question and answer saved successfully!", 
+        "id": qa_item.id,
+        "created_at": format_timestamp(qa_item.created_at)  # Added to show timestamp
+    }
 
 @router.put("/{qa_id}", summary="Update a Q&A pair by ID", tags=["Q&A"])
 async def update_qa(qa_id: int, qa: QAUpdate, db: Session = Depends(get_db)):
@@ -66,7 +71,7 @@ async def get_qa(db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "timestamp": format_timestamp(item.timestamp),
+            "created_at": format_timestamp(item.created_at),  # Changed from timestamp
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
         for item in items
@@ -81,7 +86,7 @@ async def get_qa_by_id(qa_id: int, db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "timestamp": format_timestamp(item.timestamp),
+            "created_at": format_timestamp(item.created_at),  # Changed from timestamp
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
     raise HTTPException(status_code=404, detail="Q&A pair not found")

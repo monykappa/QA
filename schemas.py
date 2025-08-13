@@ -2,6 +2,7 @@ from pydantic import BaseModel, constr, Field
 from typing import Optional
 from datetime import datetime
 
+# Add back the QASubmit class
 class QASubmit(BaseModel):
     question: constr(min_length=1)  # Removed max_length
     answer: constr(min_length=1)    # Removed max_length
@@ -12,12 +13,13 @@ class QAUpdate(BaseModel):
     answer: Optional[constr(min_length=1)] = None
     category: Optional[constr(min_length=1)] = None
 
+# Fix the duplicate QAItem class - keep only one with the correct field name
 class QAItem(BaseModel):
     id: int = Field(default=None)
     question: constr(min_length=1)  # Removed max_length
     answer: constr(min_length=1)    # Removed max_length
     category: constr(min_length=1)
-    timestamp: datetime
+    created_at: datetime  # Changed from timestamp to created_at
     updated_timestamp: Optional[datetime] = None
 
 class CategorySubmit(BaseModel):
