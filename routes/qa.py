@@ -1,9 +1,10 @@
 from datetime import datetime
+import pytz
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from database import SessionLocal
-from models import QAItemDB
+from models import CategoryDB, QAItemDB
 from schemas import QASubmit, QAUpdate, QAItem
 from utils import format_timestamp
 
@@ -19,11 +20,23 @@ def get_db():
 
 @router.post("/submit_qa/", summary="Submit a new question and answer", tags=["Q&A"])
 async def submit_qa(qa: QASubmit, db: Session = Depends(get_db)):
+    if not qa.category or qa.category.strip() == "":
+        raise HTTPException(status_code=400, detail="Category is required")
+    
+    # Verify category exists
+    existing_category = db.query(CategoryDB).filter(CategoryDB.name == qa.category).first()
+    if not existing_category:
+        raise HTTPException(status_code=400, detail="Category does not exist")
+
+    # Get current time in Phnom Penh
+    timestamp = datetime.now(pytz.timezone('Asia/Phnom_Penh'))
+    print(f"Submitting Q&A with timestamp: {timestamp}")  # Debug log
+
     qa_item = QAItemDB(
         question=qa.question,
         answer=qa.answer,
         category=qa.category,
-        timestamp=datetime.now(),
+        timestamp=timestamp,
         updated_timestamp=None
     )
     db.add(qa_item)
@@ -49,7 +62,10 @@ async def update_qa(qa_id: int, qa: QAUpdate, db: Session = Depends(get_db)):
         updated = True
     
     if updated:
-        item.updated_timestamp = datetime.now()
+        # Get current time in Phnom Penh
+        timestamp = datetime.now(pytz.timezone('Asia/Phnom_Penh'))
+        print(f"Updating Q&A with timestamp: {timestamp}")  # Debug log
+        item.updated_timestamp = timestamp
         db.commit()
         db.refresh(item)
     

@@ -65,5 +65,5 @@ async def delete_category(category_id: int, db: Session = Depends(get_db)):
 
 @router.get("/", summary="Retrieve all unique categories", tags=["Categories"])
 async def get_categories(db: Session = Depends(get_db)):
-    categories = db.query(CategoryDB.name).all()
-    return [category[0] for category in categories if category[0] is not None]
+    categories = db.query(CategoryDB).all()
+    return [{"id": category.id, "name": category.name} for category in categories if category.name is not None]

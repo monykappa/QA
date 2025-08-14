@@ -4,10 +4,11 @@ from routes.qa import router as qa_router
 from routes.categories import router as categories_router
 from routes.exports import router as exports_router
 from database import Base, engine
-import models  # Import models to register with Base
+import models
 import shutil
 import os
 from datetime import datetime
+import pytz
 import schedule
 import time
 import threading
@@ -35,12 +36,12 @@ def backup_database():
     """Copy qa.db to backups directory with date-based filename."""
     db_file = "qa.db"
     backup_dir = "backups"
-    current_date = datetime.now().strftime("%d_%m_%Y")
+    current_date = datetime.now(pytz.timezone('Asia/Phnom_Penh')).strftime("%d_%m_%Y")
     backup_file = f"{backup_dir}/qa_{current_date}.db"
 
     # Check if database file exists
     if not os.path.exists(db_file):
-        print(f"[{datetime.now()}] Database file {db_file} not found, skipping backup.")
+        print(f"[{datetime.now(pytz.timezone('Asia/Phnom_Penh'))}] Database file {db_file} not found, skipping backup.")
         return
 
     # Create backups directory if it doesn't exist
@@ -48,15 +49,15 @@ def backup_database():
 
     # Check if backup for today already exists
     if os.path.exists(backup_file):
-        print(f"[{datetime.now()}] Backup for {current_date} already exists: {backup_file}")
+        print(f"[{datetime.now(pytz.timezone('Asia/Phnom_Penh'))}] Backup for {current_date} already exists: {backup_file}")
         return
 
     try:
         # Copy the database file
         shutil.copy2(db_file, backup_file)
-        print(f"[{datetime.now()}] Successfully created backup: {backup_file}")
+        print(f"[{datetime.now(pytz.timezone('Asia/Phnom_Penh'))}] Successfully created backup: {backup_file}")
     except Exception as e:
-        print(f"[{datetime.now()}] Failed to create backup: {str(e)}")
+        print(f"[{datetime.now(pytz.timezone('Asia/Phnom_Penh'))}] Failed to create backup: {str(e)}")
 
 # Start backup scheduler in a background thread
 @app.on_event("startup")
@@ -67,7 +68,7 @@ async def startup_event():
         # For testing, comment the above line and uncomment the line below
         # schedule.every(1).minutes.do(backup_database)
 
-        print(f"[{datetime.now()}] Starting database backup scheduler...")
+        print(f"[{datetime.now(pytz.timezone('Asia/Phnom_Penh'))}] Starting database backup scheduler...")
         while True:
             schedule.run_pending()
             time.sleep(60)  # Check every minute
