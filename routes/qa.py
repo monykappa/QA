@@ -42,7 +42,11 @@ async def submit_qa(qa: QASubmit, db: Session = Depends(get_db)):
     db.add(qa_item)
     db.commit()
     db.refresh(qa_item)
-    return {"message": "Question and answer saved successfully!", "id": qa_item.id}
+    return {
+        "message": "Question and answer saved successfully!", 
+        "id": qa_item.id,
+        "created_at": format_timestamp(qa_item.created_at)  # Added to show timestamp
+    }
 
 @router.put("/{qa_id}", summary="Update a Q&A pair by ID", tags=["Q&A"])
 async def update_qa(qa_id: int, qa: QAUpdate, db: Session = Depends(get_db)):
@@ -82,7 +86,7 @@ async def get_qa(db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "timestamp": format_timestamp(item.timestamp),
+            "created_at": format_timestamp(item.created_at),  # Changed from timestamp
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
         for item in items
@@ -97,7 +101,7 @@ async def get_qa_by_id(qa_id: int, db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "timestamp": format_timestamp(item.timestamp),
+            "created_at": format_timestamp(item.created_at),  # Changed from timestamp
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
     raise HTTPException(status_code=404, detail="Q&A pair not found")

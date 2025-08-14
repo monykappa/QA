@@ -31,7 +31,7 @@ async def export_csv(db: Session = Depends(get_db)):
     output = io.StringIO()
     writer = csv.DictWriter(
         output,
-        fieldnames=["id", "question", "answer", "category", "timestamp", "updated_timestamp"],
+        fieldnames=["id", "question", "answer", "category", "created_at", "updated_timestamp"],  # Changed from timestamp to created_at
         lineterminator="\n"
     )
     writer.writeheader()
@@ -41,7 +41,7 @@ async def export_csv(db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "timestamp": format_timestamp(item.timestamp),
+            "created_at": format_timestamp(item.created_at),  # Changed from timestamp to created_at
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         })
     csv_content = output.getvalue()
@@ -72,7 +72,7 @@ async def export_json(db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "timestamp": format_timestamp(item.timestamp),
+            "created_at": format_timestamp(item.created_at),  # Changed from timestamp to created_at
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
         for item in items
