@@ -8,8 +8,8 @@ class QAItemDB(Base):
     question = Column(String)   
     answer = Column(String)
     category = Column(String)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)  # Make sure it's not nullable
-    updated_timestamp = Column(DateTime, onupdate=func.now())
+    created_at = Column(DateTime, nullable=False)  # Make sure it's not nullable
+    updated_timestamp = Column(DateTime, nullable=True)
 
 class CategoryDB(Base):
     __tablename__ = "categories"

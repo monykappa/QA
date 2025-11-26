@@ -29,14 +29,14 @@ async def submit_qa(qa: QASubmit, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Category does not exist")
 
     # Get current time in Phnom Penh
-    timestamp = datetime.now(pytz.timezone('Asia/Phnom_Penh'))
-    print(f"Submitting Q&A with timestamp: {timestamp}")  # Debug log
+    created_at = datetime.now(pytz.timezone('Asia/Phnom_Penh'))
+    print(f"Submitting Q&A with timestamp: {created_at}")  # Debug log
 
     qa_item = QAItemDB(
         question=qa.question,
         answer=qa.answer,
         category=qa.category,
-        timestamp=timestamp,
+        created_at=created_at,
         updated_timestamp=None
     )
     db.add(qa_item)
@@ -45,7 +45,7 @@ async def submit_qa(qa: QASubmit, db: Session = Depends(get_db)):
     return {
         "message": "Question and answer saved successfully!", 
         "id": qa_item.id,
-        "created_at": format_timestamp(qa_item.created_at)  # Added to show timestamp
+        "created_at": format_timestamp(qa_item.created_at)
     }
 
 @router.put("/{qa_id}", summary="Update a Q&A pair by ID", tags=["Q&A"])
@@ -86,7 +86,7 @@ async def get_qa(db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "created_at": format_timestamp(item.created_at),  # Changed from timestamp
+            "created_at": format_timestamp(item.created_at),
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
         for item in items
@@ -101,7 +101,7 @@ async def get_qa_by_id(qa_id: int, db: Session = Depends(get_db)):
             "question": item.question,
             "answer": item.answer,
             "category": item.category,
-            "created_at": format_timestamp(item.created_at),  # Changed from timestamp
+            "created_at": format_timestamp(item.created_at),
             "updated_timestamp": format_timestamp(item.updated_timestamp)
         }
     raise HTTPException(status_code=404, detail="Q&A pair not found")
